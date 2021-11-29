@@ -18,7 +18,7 @@ class NaverGameCrawling extends MY_Controller {
         $lastData = $this->naverGame->getLastData(); //model
 
         $this->load->library('NaverGameCrawl');
-        //$naverGameCrawList = $this->navergamecrawl->crawling($lastData); //lib
+        $naverGameCrawList = $this->navergamecrawl->crawling($lastData); //lib
 
         //db insert
         if (count($naverGameCrawList) > 0) {
