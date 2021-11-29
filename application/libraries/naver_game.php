@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class NaverGame {
+class Naver_game {
     protected $ci;
 
     public function __construct()
