@@ -17,7 +17,7 @@ class NaverGameCrawling extends MY_Controller {
     public function crawlingData() {
         $lastData = $this->naverGame->getLastData();
 
-        $this->load->library('NaverGame');
+        $this->load->library('naverGame');
         $naverGameCrawList = $this->navergame->crawling($lastData);
 
         //db insert
