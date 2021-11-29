@@ -15,19 +15,19 @@ class NaverGameCrawling extends MY_Controller {
     }
 
     public function crawlingData() {
-        $lastData = $this->naverGame->getLastData();
+        $lastData = $this->naverGame->getLastData(); //model
 
-        $this->load->library('NaverGame');
-        $naverGameCrawList = $this->navergame->crawling($lastData);
+        $this->load->library('NaverGameCrawl');
+        $naverGameCrawList = $this->navergamecrawl->crawling($lastData); //lib
 
         //db insert
         if (count($naverGameCrawList) > 0) {
-            $this->navergame->setCrawlingData($naverGameCrawList);
+            $this->naverGame->setCrawlingData($naverGameCrawList); //model
         }
     }
 
     public function naverGameList() {
-        $naverGameList = $this->navergame->getNaverGameList();
+        $naverGameList = $this->naverGame->getNaverGameList(); //model
         print_r($naverGameList);
     }
 }

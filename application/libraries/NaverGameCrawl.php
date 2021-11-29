@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class NaverGame {
+class NaverGameCrawl {
     public function __construct()
     {
         $this->ci =& get_instance();
@@ -9,7 +9,8 @@ class NaverGame {
 
     //하루에 한번 돌리는걸로 가정함
     public function crawling($lastData) {
-        $this->ci->load->library('simple_html_dom');
+        $this->ci->load->library('Simple_html_dom');
+        //$this->ci->load->library('simplehtmldom');
 
         if ( ! empty($lastData) && $lastData->created_date == date('Ymd')) {
             return [];
