@@ -1,0 +1,3 @@
+RewriteEngine On
+RewriteCond $1 !^(index\.php|index|assets|bower_components|modules|\.html|./)
+RewriteRule ^(.*)$ index.php/$1 [L]
