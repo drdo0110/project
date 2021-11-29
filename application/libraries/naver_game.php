@@ -11,7 +11,7 @@ class naver_game {
 
     //하루에 한번 돌리는걸로 가정함
     public function crawling($lastData) {
-        $this->ci->load->library('simpleHtmlDom');
+        $this->ci->load->library('simple_html_dom');
 
         if ( ! empty($lastData) && $lastData->created_date == date('Ymd')) {
             return [];
