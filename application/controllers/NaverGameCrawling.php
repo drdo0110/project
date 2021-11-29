@@ -6,7 +6,7 @@ class NaverGameCrawling extends MY_Controller {
     function __construct()
     {
         parent::__construct();
-        $this->load->model('crawling/naver_game_model', 'naverGame');
+        $this->load->model('Crawling/Naver_game_model', 'naverGame');
     }
 
     public function index() {
