@@ -7,8 +7,8 @@ class Memo extends MY_Controller {
     function __construct()
     {
         parent::__construct();
-        $this->load->model('memo/folder_list_model', 'folderList');
-        $this->load->model('memo/file_list_model', 'fileList');
+        $this->load->model('Memo/Folder_list_model', 'folderList');
+        $this->load->model('Memo/File_list_model', 'fileList');
     }
 
     public function index() {
