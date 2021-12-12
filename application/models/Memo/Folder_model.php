@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Folder_list_model extends CI_Model {
+class Folder_model extends CI_Model {
 
     function __construct()
     {
@@ -13,7 +13,7 @@ class Folder_list_model extends CI_Model {
             ->select('
                 *
             ')
-            ->from('folder_list AS folder')
+            ->from('folder')
             ->get();
 
         return $selectQuery->result();

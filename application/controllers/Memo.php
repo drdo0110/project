@@ -7,49 +7,74 @@ class Memo extends MY_Controller {
     function __construct()
     {
         parent::__construct();
-        $this->load->model('Memo/Folder_list_model', 'folderList');
-        $this->load->model('Memo/File_list_model', 'fileList');
+        $this->load->model('Memo/Folder_model', 'folder');
+        $this->load->model('Memo/File_model', 'file');
     }
 
     public function index() {
-        $data['fileList'] = $this->_getFileList();
-        $data['folderList'] = $this->_getFolderList();
+        $data['fileList'] = $this->_loadFileList();
+        $data['folderList'] = $this->_loadFolderList();
 
         echo $this->_content($data);
     }
 
-    private function _getFileList() {
-        return $this->fileList->getFileList();
+    //파일 리스트 호출
+    private function _loadFileList() {
+        return $this->file->getFileList();
     }
 
-    private function _getFolderList() {
-        return $this->folderList->getFolderList();
+    //폴더 리스트 호출
+    private function _loadFolderList() {
+        return $this->folder->getFolderList();
     }
 
-    public function addFile() {
-        $oPost = (object) $this->input->post(null, true);
-        $data = [
-            'parent_id' => $oPost->parent_id,
-            'name'      => $oPost->file_name
-        ];
+    //파일 row 호출
+    private function _loadCommonFileRow($seq) {
+        if (empty($seq)) {
+            return false;
+        }
 
-        $result_seq = $this->fileList->setFile($data);
-        if ( ! empty($result_seq)) {
-            $fileList = $this->fileList->getFileRow($result_seq);
-            echo json_encode($fileList);
+        return $this->file->getFileRow($seq);
+    }
+
+    //파일 선택시 호출
+    public function loadFileRow() {
+        $oGet = (object) $this->input->get(null, true);
+
+        $fileRow = $this->_loadCommonFileRow($oGet->seq);
+        if ( ! empty($fileRow)) {
+            echo json_encode($fileRow);
         }
     }
 
+    //파일 생성
+    public function addFile() {
+        $oPost = (object) $this->input->post(null, true);
+        $data = [
+            'parent_id' => $oPost->parentId,
+            'name'      => $oPost->fileName
+        ];
+
+        $result_seq = $this->file->setFile($data);
+        if ( ! empty($result_seq)) {
+            //생성된 파일 바로 뿌려주기 위한 select
+            $fileRow = $this->_loadCommonFileRow($result_seq);
+            echo json_encode($fileRow);
+        }
+    }
+
+    //파일 삭제
     public function removeFile() {
         $oPost = (object) $this->input->post(null, true);
         $data = [
             'seq'   => $oPost->seq
         ];
 
-        $result = $this->fileList->removeFile($data);
+        $result = $this->file->removeFile($data);
         echo $result;
     }
 
+    //view
     private function _content($data) {
        $this->load->view(self::VIEW_PATH . '/contents', $data);
     }

@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class File_list_model extends CI_Model {
+class File_model extends CI_Model {
 
     function __construct()
     {
@@ -13,7 +13,7 @@ class File_list_model extends CI_Model {
             ->select('
                 *
             ')
-            ->from('file_list AS file')
+            ->from('file')
             ->get();
 
         return $selectQuery->result();
@@ -24,7 +24,7 @@ class File_list_model extends CI_Model {
             ->select('
                 *
             ')
-            ->from('file_list AS file')
+            ->from('file')
             ->where('seq', $seq)
             ->get();
 
@@ -32,12 +32,12 @@ class File_list_model extends CI_Model {
     }
 
     public function setFile($data) {
-        $this->db->insert('file_list', $data);
+        $this->db->insert('file', $data);
         return $this->db->insert_id();
     }
 
     public function removeFile($data) {
-        $this->db->delete('file_list', $data);
+        $this->db->delete('file', $data);
         return true;
     }
 }

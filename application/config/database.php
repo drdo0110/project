@@ -77,7 +77,7 @@ $db['default'] = array(
 	'dsn'	=> '',
 	'hostname' => 'localhost',
 	'username' => 'root',
-	'password' => 'qndud2580#',
+	'password' => ENVIRONMENT !== 'production' ? '' : 'qndud2580#',
 	'database' => 'coding',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',

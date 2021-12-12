@@ -10,7 +10,6 @@ class NaverGameCrawl {
     //하루에 한번 돌리는걸로 가정함
     public function crawling($lastData) {
         $this->ci->load->library('Simple_html_dom');
-        //$this->ci->load->library('simplehtmldom');
 
         if ( ! empty($lastData) && $lastData->created_date == date('Ymd')) {
             return [];
