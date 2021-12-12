@@ -41,8 +41,8 @@ class Memo extends MY_Controller {
     public function loadFileRow() {
         $oGet = (object) $this->input->get(null, true);
 
-        $fileRow = $this->_loadCommonFileRow($oGet->seq);
-        if ( ! empty($fileRow)) {
+        if ( ! empty($oGet->seq)) {
+            $fileRow = $this->_loadCommonFileRow($oGet->seq);
             echo json_encode($fileRow);
         }
     }
