@@ -55,10 +55,26 @@ class Memo extends MY_Controller {
             'name'      => $oPost->fileName
         ];
 
+        $uniqueFile = $this->file->getUniqueFileRow($data);
+        if ( ! empty($uniqueFile)) {
+            $status = false;
+            $msg = "{$uniqueFile->folderName} 폴더 아래에 {$uniqueFile->fileName} 파일이 이미 존재합니다.";
+
+            $result = [
+                'status'    => $status,
+                'msg'       => $msg
+            ];
+
+            echo json_encode($result);
+            return false;
+        }
+
         $result_seq = $this->file->setFile($data);
         if ( ! empty($result_seq)) {
             //생성된 파일 바로 뿌려주기 위한 select
             $fileRow = $this->_loadCommonFileRow($result_seq);
+            $fileRow->status = true;
+
             echo json_encode($fileRow);
         }
     }
@@ -66,10 +82,12 @@ class Memo extends MY_Controller {
     //파일 삭제
     public function removeFile() {
         $oPost = (object) $this->input->post(null, true);
+
         $data = [
             'seq'   => $oPost->seq
         ];
 
+        $result = false;
         $result = $this->file->removeFile($data);
         echo $result;
     }

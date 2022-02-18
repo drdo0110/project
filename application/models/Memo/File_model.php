@@ -31,6 +31,21 @@ class File_model extends CI_Model {
         return $selectQuery->row();
     }
 
+    public function getUniqueFileRow($data) {
+        $selectQuery = $this->db
+            ->select('
+                file.name AS fileName,
+                folder.name AS folderName
+            ')
+            ->from('file AS file')
+            ->where('file.parent_id', $data['parent_id'])
+            ->where('file.name', $data['name'])
+            ->join('folder AS folder', 'folder.seq = file.parent_id')
+            ->get();
+
+        return $selectQuery->row();
+    }
+
     public function setFile($data) {
         $this->db->insert('file', $data);
         return $this->db->insert_id();

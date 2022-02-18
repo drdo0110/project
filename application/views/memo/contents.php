@@ -112,9 +112,20 @@
                 dataType : 'json',
                 type : 'post',
                 success : function(json) {
-                    let insertTag = "<li name='file' id='file-" + json.seq + "' data-file-seq='" + json.seq + "'><span>" + json.name + "</span> <span class='remove_file'>-</span></li>";
+                    if (json.status) {
+                        let insertTag = `
+                            <li name='file' id='file-${json.seq}' data-file-seq='${json.seq}'>
+                                <span class='file_name'>${json.name}</span>
+                                <span class='remove_file'>-</span>
+                            </li>
+                        `;
 
-                    target.parent().find('ul[name="file-ul"]').append(insertTag);
+                        target.parent().find('ul[name="file-ul"]').append(insertTag);
+
+                        commonLoadFile(json.seq, 'detail');
+                    } else {
+                        alert(json.msg);
+                    }
                 }
             });
         };
@@ -123,19 +134,25 @@
     //파일 삭제
     $(document).on('click', '.remove_file', function(e) {
         let target = $(e.target),
-            li = target.parent();
-
+            li = target.parent(),
+            seq = target.parent().data('file-seq');
+        console.log(target);
         if (confirm(li.find('.file_name').text() + ' 파일을 삭제하시겠습니까?')) {
             $.ajax({
                 url : 'memo/removeFile',
                 data : {
-                    seq : target.parent().data('file-seq'),
+                    seq : seq,
                 },
                 dataType : 'text',
                 type : 'post',
                 success : function(result) {
                     if (result) {
                         li.remove();
+
+                        $(`.click_file_name[data-file-seq="${seq}"]`).remove();
+
+                        let leftSeq = $('.click_file_name').eq($('.click_file_name').length - 1).data('file-seq');
+                        commonLoadFile(leftSeq);
                     } else {
                         alert('삭제 오류');
                     }
@@ -171,7 +188,7 @@
         let target = $(e.target);
         target.parent().remove();
 
-        let leftSeq = $('.main_header').find('.click_file_name').eq(0).data('file-seq');
+        let leftSeq = $('.click_file_name').eq($('.click_file_name').length - 1).data('file-seq');
         if (leftSeq != null && leftSeq != '') {
             commonLoadFile(leftSeq);
         } else {

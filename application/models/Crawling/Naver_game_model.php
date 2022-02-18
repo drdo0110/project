@@ -34,7 +34,6 @@ class Naver_game_model extends MY_Model {
                 category AS category,
                 start_date AS startDate,
                 end_date AS endDate,
-                app_name AS appName,
                 platform AS platform
             ')
             ->from('naver_game_crawling')
