@@ -4,6 +4,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title></title>
     <style>
+        * {
+          -webkit-box-sizing: border-box;
+          -moz-box-sizing: border-box;
+          box-sizing: border-box;
+        }
+
+        html, body {
+          margin: 0;
+          padding: 0;
+        }
+
         ul {list-style: none; margin:0px; padding:0px;}
 
         .wrap {width: 100%;height: 100%;}
@@ -25,6 +36,45 @@
 
         .click_file_name {font-size : 12px;float:left;cursor:pointer;padding: 10px;}
         .click_file_name.active {background: #262626; border-bottom: 1px solid #262626;}
+
+        .nav_contextmenu, .folder_contextmenu {
+            display: none;
+            position: absolute;
+            width: 150px;
+            margin: 0;
+            padding: 0;
+            background: #262626;
+            border-radius: 5px;
+            list-style: none;
+            box-shadow:
+                0 15px 35px rgba(50,50,90,0.1),
+                0 5px 15px rgba(0,0,0,0.07);
+            overflow: hidden;
+            z-index: 999999;
+            border: 1px solid #ccc;
+        }
+
+        .nav_contextmenu li, .folder_contextmenu li {
+            border-left: 3px solid transparent;
+            transition: ease .2s;
+        }
+
+        .nav_contextmenu li a, .folder_contextmenu li a {
+            display: block;
+            padding: 7px;
+            font-size: 12px;
+            color: #B0BEC5;
+            text-decoration: none;
+            transition: ease .2s;
+        }
+
+        .nav_contextmenu li:hover, .folder_contextmenu li:hover {
+            background: #4040f9;
+        }
+
+        .nav_contextmenu li:hover a, .folder_contextmenu li:hover a {
+            color: #FFFFFF;
+        }
     </style>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -32,6 +82,12 @@
     <body>
         <div class="wrap">
             <div class="nav">
+                <div class="contextmenu_box">
+
+                </div>
+                <ul class="nav_contextmenu" name="contextmenu">
+                    <li><a href="#">New Folder</a></li>
+                </ul>
                 <div class="nav_header">
                     <span>FOLDERS</span>
                 </div>
@@ -41,7 +97,6 @@
                             <li name="folder" id="folder-<?=$folder->seq?>" data-folder-seq="<?=$folder->seq?>">
                                 <span id="folder-close" class='close'>▶</span>
                                 <span class="folder_name"><?=$folder->name?></span>
-                                <span class="add_folder">+</span>
                                 <span class="remove_folder">-</span>
 
                                 <ul name="file-ul">
@@ -49,7 +104,6 @@
                                         <?php if ($file->parent_id == $folder->seq): ?>
                                             <li name="file" id="file-<?=$file->seq?>" data-file-seq="<?=$file->seq?>">
                                                 <span class="file_name"><?=$file->name?></span>
-                                                <span class="remove_file">-</span>
                                             </li>
                                         <?php endif; ?>
                                     <?php endforeach ?>
@@ -59,6 +113,7 @@
                     </ul>
                 </div>
             </div>
+
             <div class="main">
                 <div class="main_header">
                 </div>
@@ -71,14 +126,119 @@
 </html>
 
 <script>
+$(document).ready(function(){
     let folder = $('[name="folder"]'),
         file = $('[name="file"]');
 
-    let rightClickBox = false;
-
     //기본 브라우져 오른쪽 마우스 클릭 막기
-    folder.on('contextmenu', function() {
+    folder.on('contextmenu', function(e) {
+        var target = $(e.target);
+
+        var winWidth = $(document).width();
+        var winHeight = $(document).height();
+
+        var posX = e.pageX;
+        var posY = e.pageY;
+
+        var menuWidth = $(".folder_contextmenu").width();
+        var menuHeight = $(".folder_contextmenu").height();
+
+        var secMargin = 10;
+
+        if (posX + menuWidth + secMargin >= winWidth && posY + menuHeight + secMargin >= winHeight) {
+            //Case 1: right-bottom overflow:
+            posLeft = posX - menuWidth - secMargin + "px";
+            posTop = posY - menuHeight - secMargin + "px";
+
+        } else if (posX + menuWidth + secMargin >= winWidth){
+            //Case 2: right overflow:
+            posLeft = posX - menuWidth - secMargin + "px";
+            posTop = posY + secMargin + "px";
+
+        } else if (posY + menuHeight + secMargin >= winHeight){
+            //Case 3: bottom overflow:
+            posLeft = posX + secMargin + "px";
+            posTop = posY - menuHeight - secMargin + "px";
+
+        } else {
+            //Case 4: default values:
+            posLeft = posX + secMargin + "px";
+            posTop = posY + secMargin + "px";
+        };
+
+        var tag = '';
+        if (target.attr('class') == 'file_name') {
+            var seq = target.parent().data('file-seq');
+
+            tag += `<ul class="folder_contextmenu" name="contextmenu" data-file-seq="${seq}">`;
+                tag += `<li><a href="#">File Rename</a></li>`;
+                tag += `<li><a href="#" class="remove_file">File Delete</a></li>`;
+        } else if (target.attr('class') == 'folder_name') {
+            var seq = target.parent().data('folder-seq');
+
+            tag += `<ul class="folder_contextmenu" name="contextmenu" data-folder-seq="${seq}">`;
+                tag += `<li><a href="#" class="add_folder">New File</a></li>`;
+                tag += `<li><a href="#">Folder Rename</a></li>`;
+        }
+        tag += `</ul>`;
+
+        $('.contextmenu_box').empty();
+        $('.contextmenu_box').append(tag);
+
+        $(".folder_contextmenu").css({
+            "left": posLeft,
+            "top": posTop
+        }).show();
+
+        $(".nav_contextmenu").hide();
         return false;
+    });
+
+    $('.nav').on('contextmenu', function(e) {
+        var winWidth = $(document).width();
+        var winHeight = $(document).height();
+
+        var posX = e.pageX;
+        var posY = e.pageY;
+
+        var menuWidth = $(".nav_contextmenu").width();
+        var menuHeight = $(".nav_contextmenu").height();
+
+        var secMargin = 10;
+
+        if (posX + menuWidth + secMargin >= winWidth && posY + menuHeight + secMargin >= winHeight) {
+            //Case 1: right-bottom overflow:
+            posLeft = posX - menuWidth - secMargin + "px";
+            posTop = posY - menuHeight - secMargin + "px";
+
+        } else if (posX + menuWidth + secMargin >= winWidth){
+            //Case 2: right overflow:
+            posLeft = posX - menuWidth - secMargin + "px";
+            posTop = posY + secMargin + "px";
+
+        } else if (posY + menuHeight + secMargin >= winHeight){
+            //Case 3: bottom overflow:
+            posLeft = posX + secMargin + "px";
+            posTop = posY - menuHeight - secMargin + "px";
+
+        } else {
+            //Case 4: default values:
+            posLeft = posX + secMargin + "px";
+            posTop = posY + secMargin + "px";
+        };
+
+        $(".nav_contextmenu").css({
+            "left": posLeft,
+            "top": posTop
+        }).show();
+
+        $(".folder_contextmenu").hide();
+        return false;
+    });
+
+    //Hide contextmenu:
+    $(document).click(function(){
+        $("[name='contextmenu']").hide();
     });
 
     //폴더 열닫
@@ -101,43 +261,47 @@
     //파일 추가
     $(document).on('click', '.add_folder', function(e) {
         let target = $(e.target),
-            file_name = prompt('파일명을 입력해주세요.');
-        if (file_name != null || file_name != '' || file_name.length != 0) {
-            $.ajax({
-                url : 'memo/addFile',
-                data : {
-                    parentId : target.parent().data('folder-seq'),
-                    fileName : file_name,
-                },
-                dataType : 'json',
-                type : 'post',
-                success : function(json) {
-                    if (json.status) {
-                        let insertTag = `
-                            <li name='file' id='file-${json.seq}' data-file-seq='${json.seq}'>
-                                <span class='file_name'>${json.name}</span>
-                                <span class='remove_file'>-</span>
-                            </li>
-                        `;
+            fileName = prompt('파일명을 입력해주세요.'),
+            folderSeq = target.parents('ul').data('folder-seq');
 
-                        target.parent().find('ul[name="file-ul"]').append(insertTag);
+        if (fileName == '' || fileName.length == 0) {
+            alert('파일명이 입력되지 않았습니다.\n다시 확인해주세요.');
+            return false;
+        }
 
-                        commonLoadFile(json.seq, 'detail');
-                    } else {
-                        alert(json.msg);
-                    }
+        $.ajax({
+            url : 'memo/addFile',
+            data : {
+                parentId : folderSeq,
+                fileName : fileName,
+            },
+            dataType : 'json',
+            type : 'post',
+            success : function(json) {
+                if (json.status) {
+                    let insertTag = `
+                        <li name='file' id='file-${json.seq}' data-file-seq='${json.seq}'>
+                            <span class='file_name'>${json.name}</span>
+                        </li>
+                    `;
+
+                    $(`[name="folder"][data-folder-seq=${folderSeq}]`).append(insertTag);
+
+                    commonLoadFile(json.seq, 'detail');
+                } else {
+                    alert(json.msg);
                 }
-            });
-        };
+            }
+        });
+
     });
 
     //파일 삭제
     $(document).on('click', '.remove_file', function(e) {
         let target = $(e.target),
-            li = target.parent(),
-            seq = target.parent().data('file-seq');
-        console.log(target);
-        if (confirm(li.find('.file_name').text() + ' 파일을 삭제하시겠습니까?')) {
+            seq = target.parents('ul').data('file-seq');
+
+        if (confirm($(`[name="file"][data-file-seq="${seq}"]`).text().trim() + ' 파일을 삭제하시겠습니까?')) {
             $.ajax({
                 url : 'memo/removeFile',
                 data : {
@@ -147,7 +311,7 @@
                 type : 'post',
                 success : function(result) {
                     if (result) {
-                        li.remove();
+                        $(`[name="file"][data-file-seq="${seq}"]`).remove();
 
                         $(`.click_file_name[data-file-seq="${seq}"]`).remove();
 
@@ -168,14 +332,14 @@
             seq = target.parent().data('file-seq');
 
         //이미 동일한 파일이 열려있으면 return
-        var is_file_open = false;
+        var isFileOpen = false;
         $.each($('.main_header').find('.click_file_name'), function(idx, el) {
             if (seq == $(el).data('file-seq')) {
-                is_file_open = true;
+                isFileOpen = true;
             }
         })
 
-        if (is_file_open) {
+        if (isFileOpen) {
             commonLoadFile(seq);
             return;
         }
@@ -240,5 +404,5 @@
                 }
         });
     }
-
+});
 </script>
