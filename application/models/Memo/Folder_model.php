@@ -18,4 +18,16 @@ class Folder_model extends CI_Model {
 
         return $selectQuery->result();
     }
+
+    public function getUniqueFolderRow($aWhere) {
+        $selectQuery = $this->db
+            ->select('
+                folder.name AS folderName
+            ')
+            ->from('folder')
+            ->where('name', $aWhere['name'])
+            ->get();
+
+        return $selectQuery->row();
+    }
 }

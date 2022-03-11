@@ -37,7 +37,7 @@
         .click_file_name {font-size : 12px;float:left;cursor:pointer;padding: 10px;}
         .click_file_name.active {background: #262626; border-bottom: 1px solid #262626;}
 
-        .nav_contextmenu, .folder_contextmenu {
+        .nav_contextmenu, .folder_contextmenu, .file_contextmenu {
             display: none;
             position: absolute;
             width: 150px;
@@ -54,12 +54,12 @@
             border: 1px solid #ccc;
         }
 
-        .nav_contextmenu li, .folder_contextmenu li {
+        .nav_contextmenu li, .folder_contextmenu li, .file_contextmenu li {
             border-left: 3px solid transparent;
             transition: ease .2s;
         }
 
-        .nav_contextmenu li a, .folder_contextmenu li a {
+        .nav_contextmenu li a, .folder_contextmenu li a, .file_contextmenu li a {
             display: block;
             padding: 7px;
             font-size: 12px;
@@ -68,11 +68,11 @@
             transition: ease .2s;
         }
 
-        .nav_contextmenu li:hover, .folder_contextmenu li:hover {
+        .nav_contextmenu li:hover, .folder_contextmenu li:hover, .file_contextmenu li:hover {
             background: #4040f9;
         }
 
-        .nav_contextmenu li:hover a, .folder_contextmenu li:hover a {
+        .nav_contextmenu li:hover a, .folder_contextmenu li:hover a, .file_contextmenu li:hover a {
             color: #FFFFFF;
         }
     </style>
@@ -130,20 +130,20 @@ $(document).ready(function(){
     let folder = $('[name="folder"]'),
         file = $('[name="file"]');
 
-    //기본 브라우져 오른쪽 마우스 클릭 막기
+    //폴더 contextmenu
     folder.on('contextmenu', function(e) {
-        var target = $(e.target);
+        let target = $(e.target);
 
-        var winWidth = $(document).width();
-        var winHeight = $(document).height();
+        let winWidth = $(document).width();
+        let winHeight = $(document).height();
 
-        var posX = e.pageX;
-        var posY = e.pageY;
+        let posX = e.pageX;
+        let posY = e.pageY;
 
-        var menuWidth = $(".folder_contextmenu").width();
-        var menuHeight = $(".folder_contextmenu").height();
+        let menuWidth = $(".folder_contextmenu").width();
+        let menuHeight = $(".folder_contextmenu").height();
 
-        var secMargin = 10;
+        let secMargin = 10;
 
         if (posX + menuWidth + secMargin >= winWidth && posY + menuHeight + secMargin >= winHeight) {
             //Case 1: right-bottom overflow:
@@ -166,26 +166,27 @@ $(document).ready(function(){
             posTop = posY + secMargin + "px";
         };
 
-        var tag = '';
+        let tag = '';
         if (target.attr('class') == 'file_name') {
-            var seq = target.parent().data('file-seq');
+            let fileSeq = target.parent().data('file-seq'),
+                folderSeq = target.parent().parent().parent().data('folder-seq');
 
-            tag += `<ul class="folder_contextmenu" name="contextmenu" data-file-seq="${seq}">`;
-                tag += `<li><a href="#">File Rename</a></li>`;
+            tag += `<ul class="file_contextmenu" name="contextmenu" data-file-seq="${fileSeq}" data-folder-seq="${folderSeq}">`;
+                tag += `<li><a href="#" class="rename_file">File Rename</a></li>`;
                 tag += `<li><a href="#" class="remove_file">File Delete</a></li>`;
         } else if (target.attr('class') == 'folder_name') {
-            var seq = target.parent().data('folder-seq');
+            let seq = target.parent().data('folder-seq');
 
             tag += `<ul class="folder_contextmenu" name="contextmenu" data-folder-seq="${seq}">`;
                 tag += `<li><a href="#" class="add_folder">New File</a></li>`;
-                tag += `<li><a href="#">Folder Rename</a></li>`;
+                tag += `<li><a href="#" class="rename_folder">Folder Rename</a></li>`;
         }
         tag += `</ul>`;
 
         $('.contextmenu_box').empty();
         $('.contextmenu_box').append(tag);
 
-        $(".folder_contextmenu").css({
+        $(".folder_contextmenu, .file_contextmenu").css({
             "left": posLeft,
             "top": posTop
         }).show();
@@ -194,17 +195,18 @@ $(document).ready(function(){
         return false;
     });
 
+    //nav contextmenu
     $('.nav').on('contextmenu', function(e) {
-        var winWidth = $(document).width();
-        var winHeight = $(document).height();
+        let winWidth = $(document).width();
+        let winHeight = $(document).height();
 
-        var posX = e.pageX;
-        var posY = e.pageY;
+        let posX = e.pageX;
+        let posY = e.pageY;
 
-        var menuWidth = $(".nav_contextmenu").width();
-        var menuHeight = $(".nav_contextmenu").height();
+        let menuWidth = $(".nav_contextmenu").width();
+        let menuHeight = $(".nav_contextmenu").height();
 
-        var secMargin = 10;
+        let secMargin = 10;
 
         if (posX + menuWidth + secMargin >= winWidth && posY + menuHeight + secMargin >= winHeight) {
             //Case 1: right-bottom overflow:
@@ -232,11 +234,11 @@ $(document).ready(function(){
             "top": posTop
         }).show();
 
-        $(".folder_contextmenu").hide();
+        $(".folder_contextmenu, .file_contextmenu").hide();
         return false;
     });
 
-    //Hide contextmenu:
+    //contextmenu 숨기기
     $(document).click(function(){
         $("[name='contextmenu']").hide();
     });
@@ -264,7 +266,7 @@ $(document).ready(function(){
             fileName = prompt('파일명을 입력해주세요.'),
             folderSeq = target.parents('ul').data('folder-seq');
 
-        if (fileName == '' || fileName.length == 0) {
+        if (fileName == '') {
             alert('파일명이 입력되지 않았습니다.\n다시 확인해주세요.');
             return false;
         }
@@ -332,7 +334,7 @@ $(document).ready(function(){
             seq = target.parent().data('file-seq');
 
         //이미 동일한 파일이 열려있으면 return
-        var isFileOpen = false;
+        let isFileOpen = false;
         $.each($('.main_header').find('.click_file_name'), function(idx, el) {
             if (seq == $(el).data('file-seq')) {
                 isFileOpen = true;
@@ -358,51 +360,87 @@ $(document).ready(function(){
         } else {
             $('.source').empty();
         }
-    })
+    });
+
+    //폴더 및 파일 이름 변경
+    $(document).on('click', '.rename_folder, .rename_file', function(e) {
+        let target = $(e.target),
+            type = target.attr('class') == 'rename_folder' ? 'folder' : 'file',
+            krType = type == 'folder' ? '폴더' : '파일',
+            folderSeq = target.parents('ul').data('folder-seq'),
+            fileSeq = target.parents('ul').data('file-seq'),
+            changeName = prompt(`${krType}명을 입력해주세요.`);
+
+        if (changeName == '') {
+            alert('파일명이 입력되지 않았습니다.\n다시 확인해주세요.');
+            return false;
+        }
+
+        $.ajax({
+            url : 'memo/changeRename',
+            data : {
+                folderSeq : folderSeq,
+                fileSeq : fileSeq,
+                type : type,
+                changeName : changeName
+            },
+            dataType : 'json',
+            type : 'get',
+            success : function(json) {
+                alert(json.msg);
+                if (json.status) {
+                    //업데이트 이후
+                    $(`li[data-file-seq="${fileSeq}"] span.file_name`).text(changeName);
+                    $(`.click_file_name[data-file-seq="${fileSeq}"]`).text(changeName);
+                    $(`.click_file_name[data-file-seq="${fileSeq}"]`).append('<span class="cancel" style="margin: 0px 10px;">x</span>');
+                }
+            }
+        });
+    });
 
     //열린 파일 리스트중의 특정 파일 선택시
     $(document).on('click', '.click_file_name', function(e) {
         let target = $(e.target);
         commonLoadFile(target.data('file-seq'));
-    })
+    });
 
     //파일 row 호출 - 공통
     function commonLoadFile(seq, type = null) {
         $.ajax({
             url : 'memo/loadFileRow',
-                data : {
-                    seq : seq,
-                },
-                dataType : 'json',
-                type : 'get',
-                success : function(json) {
-                    let data = json;
-                    $('.source').empty();
-                    $('.source').text(data.source);
+            data : {
+                seq : seq,
+            },
+            dataType : 'json',
+            type : 'get',
+            success : function(json) {
+                let data = json;
+                $('.source').empty();
+                $('.source').text(data.source);
 
-                    if (type == 'detail') {
-                        var div = document.createElement('div');
-                        div.className = 'click_file_name';
-                        div.innerText = data.name;
-                        div.setAttribute('data-file-seq', data.seq);
-                        $('.main_header').append($(div));
+                if (type == 'detail') {
+                    let div = document.createElement('div');
+                    div.className = 'click_file_name';
+                    div.innerText = data.name;
+                    div.setAttribute('data-file-seq', data.seq);
+                    $('.main_header').append($(div));
 
-                        var span = document.createElement('span');
-                        span.className = 'cancel';
-                        span.innerText = 'x';
-                        span.style = 'margin:0 10px 0 10px';
-                        $(div).append($(span));
-                    }
-
-                    //선택된 파일 active
-                    $('.click_file_name').removeClass('active');
-                    $.each($('.click_file_name'), function(idx, el) {
-                        if (seq == $(el).data('file-seq')) {
-                            $(el).addClass('active');
-                        }
-                    });
+                    let span = document.createElement('span');
+                    span.className = 'cancel';
+                    span.innerText = 'x';
+                    span.style = 'margin:0 10px 0 10px';
+                    $(div).append($(span));
                 }
+
+                //선택된 파일 active
+                $('.click_file_name').removeClass('active');
+                $.each($('.click_file_name'), function(idx, el) {
+                    if (seq == $(el).data('file-seq')) {
+                        $(el).addClass('active');
+                    }
+                });
+            }
         });
-    }
+    };
 });
 </script>

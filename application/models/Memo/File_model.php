@@ -46,13 +46,19 @@ class File_model extends CI_Model {
         return $selectQuery->row();
     }
 
+    //신규파일
     public function setFile($data) {
         $this->db->insert('file', $data);
         return $this->db->insert_id();
     }
 
+    //파일삭제
     public function removeFile($data) {
         $this->db->delete('file', $data);
         return true;
+    }
+
+    public function changeRenameFile($aUpdate) {
+        return $this->db->update('file', $aUpdate['set'], $aUpdate['where']);
     }
 }

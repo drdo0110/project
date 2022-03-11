@@ -92,6 +92,54 @@ class Memo extends MY_Controller {
         echo $result;
     }
 
+    //이름 변경
+    public function changeRename() {
+        $oGet = (object) $this->input->get(null, true);
+        $status = true;
+
+        $aWhere = [
+            'parent_id'   => $oGet->folderSeq,
+            'name'        => $oGet->changeName
+        ];
+
+        if ($oGet->type == 'file') {
+            $uniqueFile = $this->file->getUniqueFileRow($aWhere);
+            if ( ! empty($uniqueFile)) {
+                $status = false;
+                $msg = "{$uniqueFile->folderName} 폴더 아래에 {$uniqueFile->fileName} 파일이 이미 존재합니다.";
+            } else {
+                //업데이트
+                $aUpdate = [
+                    'set'   => [
+                        'name'  => $oGet->changeName
+                    ],
+                    'where' => [
+                        'parent_id' => $oGet->folderSeq,
+                        'seq'       => $oGet->fileSeq
+                    ]
+                ];
+
+                $updateResult = $this->file->changeRenameFile($aUpdate);
+                $msg = "파일 이름 변경 완료";
+            }
+        } else {
+            $uniqueFolder = $this->folder->getUniqueFolderRow($aWhere);
+            if ( ! empty($uniqueFolder)) {
+                $status = false;
+                $msg = "{$uniqueFolder->folderName} 폴더가 이미 존재합니다.";
+            } else {
+                //업데이트
+            }
+        }
+
+        $result = [
+            'status'    => $status,
+            'msg'       => $msg
+        ];
+
+        echo json_encode($result);
+    }
+
     //view
     private function _content($data) {
        $this->load->view(self::VIEW_PATH . '/contents', $data);
