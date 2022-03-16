@@ -296,6 +296,10 @@ $(document).ready(function(){
             return false;
         }
 
+        if (folderName == null) {
+            return false;
+        }
+
         $.ajax({
             url : 'memo/addFolder',
             data : {
@@ -360,6 +364,10 @@ $(document).ready(function(){
 
         if (fileName == '') {
             alert('파일명이 입력되지 않았습니다.\n다시 확인해주세요.');
+            return false;
+        }
+
+        if (fileName == null) {
             return false;
         }
 
@@ -464,6 +472,10 @@ $(document).ready(function(){
 
         if (changeName == '') {
             alert('파일명이 입력되지 않았습니다.\n다시 확인해주세요.');
+            return false;
+        }
+
+        if (changeName == null) {
             return false;
         }
 
