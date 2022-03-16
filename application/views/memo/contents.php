@@ -155,71 +155,7 @@ $(document).ready(function(){
 
 
     //폴더 contextmenu
-    folder.on('contextmenu', function(e) {
-        let target = $(e.target);
-
-        let winWidth = $(document).width();
-        let winHeight = $(document).height();
-
-        let posX = e.pageX;
-        let posY = e.pageY;
-
-        let menuWidth = $(".folder_contextmenu").width();
-        let menuHeight = $(".folder_contextmenu").height();
-
-        let secMargin = 10;
-
-        if (posX + menuWidth + secMargin >= winWidth && posY + menuHeight + secMargin >= winHeight) {
-            //Case 1: right-bottom overflow:
-            posLeft = posX - menuWidth - secMargin + "px";
-            posTop = posY - menuHeight - secMargin + "px";
-
-        } else if (posX + menuWidth + secMargin >= winWidth){
-            //Case 2: right overflow:
-            posLeft = posX - menuWidth - secMargin + "px";
-            posTop = posY + secMargin + "px";
-
-        } else if (posY + menuHeight + secMargin >= winHeight){
-            //Case 3: bottom overflow:
-            posLeft = posX + secMargin + "px";
-            posTop = posY - menuHeight - secMargin + "px";
-
-        } else {
-            //Case 4: default values:
-            posLeft = posX + secMargin + "px";
-            posTop = posY + secMargin + "px";
-        };
-
-        let tag = '';
-        if (target.attr('class') == 'file_name') {
-            let fileSeq = target.parent().data('file-seq'),
-                folderSeq = target.parent().parent().parent().data('folder-seq');
-
-            tag += `<ul class="file_contextmenu" name="contextmenu" data-file-seq="${fileSeq}" data-folder-seq="${folderSeq}">`;
-                tag += `<li><a href="#" class="rename_file">File Rename</a></li>`;
-                tag += `<li><a href="#" class="remove_file">File Delete</a></li>`;
-        } else if (target.attr('class') == 'folder_name') {
-            let seq = target.parent().data('folder-seq');
-
-            tag += `<ul class="folder_contextmenu" name="contextmenu" data-folder-seq="${seq}">`;
-                tag += `<li><a href="#" class="add_folder">New Folder</a></li>`;
-                tag += `<li><a href="#" class="add_file">New File</a></li>`;
-                tag += `<li><a href="#" class="rename_folder">Folder Rename</a></li>`;
-                tag += `<li><a href="#" class="remove_folder">Folder Delete</a></li>`;
-        }
-        tag += `</ul>`;
-
-        $('.contextmenu_box').empty();
-        $('.contextmenu_box').append(tag);
-
-        $(".folder_contextmenu, .file_contextmenu").css({
-            "left": posLeft,
-            "top": posTop
-        }).show();
-
-        $(".nav_contextmenu").hide();
-        return false;
-    });
+    commonContextMenu(folder);
 
     //nav contextmenu
     $('.nav').on('contextmenu', function(e) {
@@ -311,25 +247,32 @@ $(document).ready(function(){
             type : 'post',
             success : function(json) {
                 if (json.status) {
-                    let css = typeof folderSeq != 'undefined' ? 'padding-left: 5%;' : '';
-                    let insertTag = `
-                        <ul name="folder-ul" style="${css}display: block;">
+                    if (typeof folderSeq != 'undefined') {
+                        let insertTag = `
+                            <ul name="folder-ul" style="padding-left: 5%;display: block;">
+                                <li name="folder" id="folder-${json.seq}" data-folder-seq="${json.seq}">
+                                    <span id="folder-close" class='close'>▶</span>
+                                    <span class="folder_name">${json.name}</span>
+                                    <ul name="file-ul">
+                                    </ul>
+                                </li>
+                            </ul>
+                        `;
+                        $(insertTag).insertAfter(`[name="folder"][data-folder-seq="${folderSeq}"] > span.folder_name`);
+                    } else {
+                        let insertTag = `
                             <li name="folder" id="folder-${json.seq}" data-folder-seq="${json.seq}">
                                 <span id="folder-close" class='close'>▶</span>
                                 <span class="folder_name">${json.name}</span>
                                 <ul name="file-ul">
                                 </ul>
                             </li>
-                        </ul>
-                    `;
-
-                    if (typeof folderSeq != 'undefined') {
-                        $(insertTag).insertAfter(`[name="folder"][data-folder-seq="${folderSeq}"] > span.folder_name`);
-                    } else {
+                        `;
                         $('.nav_contents > ul').append(insertTag);
                     }
 
                     commonLoadFolder(json.seq);
+                    commonContextMenu($(`#folder-${json.seq}`));
                 } else {
                     alert(json.msg);
                 }
@@ -353,7 +296,7 @@ $(document).ready(function(){
                 success : function(result) {
                     if (result) {
                         $(`[name="folder"][data-folder-seq="${seq}"]`).remove();
-                        commonLoadFolder(leftSeq);
+                        commonLoadFolder(seq);
                     } else {
                         alert('삭제 오류');
                     }
@@ -394,7 +337,6 @@ $(document).ready(function(){
                     `;
 
                     $(`[name="folder"][data-folder-seq=${folderSeq}] > ul[name="file-ul"]`).append(insertTag);
-
                     commonLoadFile(json.seq, 'detail');
                 } else {
                     alert(json.msg);
@@ -564,9 +506,77 @@ $(document).ready(function(){
             success : function(json) {
                 let data = json;
                 $('.source').empty();
-                $('.source').text(data.source);
             }
         });
     };
+
+    function commonContextMenu(dom) {
+        //폴더 contextmenu
+        dom.on('contextmenu', function(e) {
+            let target = $(e.target);
+
+            let winWidth = $(document).width();
+            let winHeight = $(document).height();
+
+            let posX = e.pageX;
+            let posY = e.pageY;
+
+            let menuWidth = $(".folder_contextmenu").width();
+            let menuHeight = $(".folder_contextmenu").height();
+
+            let secMargin = 10;
+
+            if (posX + menuWidth + secMargin >= winWidth && posY + menuHeight + secMargin >= winHeight) {
+                //Case 1: right-bottom overflow:
+                posLeft = posX - menuWidth - secMargin + "px";
+                posTop = posY - menuHeight - secMargin + "px";
+
+            } else if (posX + menuWidth + secMargin >= winWidth){
+                //Case 2: right overflow:
+                posLeft = posX - menuWidth - secMargin + "px";
+                posTop = posY + secMargin + "px";
+
+            } else if (posY + menuHeight + secMargin >= winHeight){
+                //Case 3: bottom overflow:
+                posLeft = posX + secMargin + "px";
+                posTop = posY - menuHeight - secMargin + "px";
+
+            } else {
+                //Case 4: default values:
+                posLeft = posX + secMargin + "px";
+                posTop = posY + secMargin + "px";
+            };
+
+            let tag = '';
+            if (target.attr('class') == 'file_name') {
+                let fileSeq = target.parent().data('file-seq'),
+                    folderSeq = target.parent().parent().parent().data('folder-seq');
+
+                tag += `<ul class="file_contextmenu" name="contextmenu" data-file-seq="${fileSeq}" data-folder-seq="${folderSeq}">`;
+                    tag += `<li><a href="#" class="rename_file">File Rename</a></li>`;
+                    tag += `<li><a href="#" class="remove_file">File Delete</a></li>`;
+            } else if (target.attr('class') == 'folder_name') {
+                let seq = target.parent().data('folder-seq');
+
+                tag += `<ul class="folder_contextmenu" name="contextmenu" data-folder-seq="${seq}">`;
+                    tag += `<li><a href="#" class="add_folder">New Folder</a></li>`;
+                    tag += `<li><a href="#" class="add_file">New File</a></li>`;
+                    tag += `<li><a href="#" class="rename_folder">Folder Rename</a></li>`;
+                    tag += `<li><a href="#" class="remove_folder">Folder Delete</a></li>`;
+            }
+            tag += `</ul>`;
+
+            $('.contextmenu_box').empty();
+            $('.contextmenu_box').append(tag);
+
+            $(".folder_contextmenu, .file_contextmenu").css({
+                "left": posLeft,
+                "top": posTop
+            }).show();
+
+            $(".nav_contextmenu").hide();
+            return false;
+        });
+    }
 });
 </script>

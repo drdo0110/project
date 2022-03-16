@@ -13,7 +13,7 @@ class Folder_model extends CI_Model {
             ->select('
                 *
             ')
-            ->where('parent_id', null)
+            ->where('parent_id', 0)
             ->from('folder')
             ->get();
 
@@ -27,7 +27,7 @@ class Folder_model extends CI_Model {
                 folder.parent_id AS folderParentId,
                 folder.name AS folderName
             ')
-            ->where('folder.parent_id !=', null)
+            ->where('folder.parent_id !=', 0)
             ->from('folder')
             ->get();
 

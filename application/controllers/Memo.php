@@ -73,12 +73,12 @@ class Memo extends MY_Controller {
     public function addFolder() {
         $oPost = (object) $this->input->post(null, true);
         $data = [
-            'parent_id' => ! empty($oPost->parentId) ? $oPost->parentId : null,
+            'parent_id' => ! empty($oPost->parentId) ? $oPost->parentId : 0,
             'name'      => $oPost->folderName
         ];
 
         $uniqueFolder = $this->folder->getUniqueFolderRow($data);
-        if ( ! empty($uniquefolder)) {
+        if ( ! empty($uniqueFolder)) {
             $status = false;
             $msg = "{$uniqueFolder->folderName} 폴더 아래에 이미 존재합니다.";
 
