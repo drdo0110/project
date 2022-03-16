@@ -308,7 +308,7 @@ $(document).ready(function(){
             success : function(json) {
                 if (json.status) {
                     let insertTag = `
-                        <ul name="folder-ul" style="padding-left: 5%;">
+                        <ul name="folder-ul" style="padding-left: 5%;display: block;">
                             <li name="folder" id="folder-${json.seq}" data-folder-seq="${json.seq}">
                                 <span id="folder-close" class='close'>▶</span>
                                 <span class="folder_name">${json.name}</span>
@@ -356,7 +356,7 @@ $(document).ready(function(){
                         </li>
                     `;
 
-                    $(`[name="folder"][data-folder-seq=${folderSeq}] ul[name="file-ul"]`).append(insertTag);
+                    $(`[name="folder"][data-folder-seq=${folderSeq}] > ul[name="file-ul"]`).append(insertTag);
 
                     commonLoadFile(json.seq, 'detail');
                 } else {
