@@ -73,7 +73,7 @@ class Memo extends MY_Controller {
     public function addFolder() {
         $oPost = (object) $this->input->post(null, true);
         $data = [
-            'parent_id' => $oPost->parentId,
+            'parent_id' => ! empty($oPost->parentId) ? $oPost->parentId : null,
             'name'      => $oPost->folderName
         ];
 

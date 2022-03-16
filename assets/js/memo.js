@@ -1,124 +1,3 @@
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title></title>
-    <style>
-        * {
-          -webkit-box-sizing: border-box;
-          -moz-box-sizing: border-box;
-          box-sizing: border-box;
-        }
-
-        html, body {
-          margin: 0;
-          padding: 0;
-        }
-
-        ul {list-style: none; margin:0px; padding:0px;}
-
-        .wrap {width: 100%;height: 100%;}
-        .nav {width: 20%;height: 100%;float: left;background: #181836;}
-        .main {width: 80%;height: 100%;float: right;background: #262626;color: white}
-
-        .nav_header {height: 5%;margin: 1% 0 0 2%}
-        .nav_header span {color: white;font-weight: bold;font-size: 15px;}
-
-        .nav_contents {color: white;margin: 0 0 0 2%;}
-        .nav_contents ul li {cursor: pointer;font-size: 13px;}
-
-        [name="file"] {padding-left: 10%;}
-        [name="file-ul"], [name="folder-ul"] {display: none;}
-
-        .main_header {height: 4%; background: #3c3c3c;}
-        .main_contents{height: 96%;}
-        .main_contents textarea {width: 100%;height: 100%;background: #262626;color: white;border: none;outline: none; font-size: 14px;}
-
-        .click_file_name {font-size : 12px;float:left;cursor:pointer;padding: 10px;}
-        .click_file_name.active {background: #262626; border-bottom: 1px solid #262626;}
-
-        .nav_contextmenu, .folder_contextmenu, .file_contextmenu {
-            display: none;
-            position: absolute;
-            width: 150px;
-            margin: 0;
-            padding: 0;
-            background: #262626;
-            border-radius: 5px;
-            list-style: none;
-            box-shadow:
-                0 15px 35px rgba(50,50,90,0.1),
-                0 5px 15px rgba(0,0,0,0.07);
-            overflow: hidden;
-            z-index: 999999;
-            border: 1px solid #ccc;
-        }
-
-        .nav_contextmenu li, .folder_contextmenu li, .file_contextmenu li {
-            border-left: 3px solid transparent;
-            transition: ease .2s;
-        }
-
-        .nav_contextmenu li a, .folder_contextmenu li a, .file_contextmenu li a {
-            display: block;
-            padding: 7px;
-            font-size: 12px;
-            color: #B0BEC5;
-            text-decoration: none;
-            transition: ease .2s;
-        }
-
-        .nav_contextmenu li:hover, .folder_contextmenu li:hover, .file_contextmenu li:hover {
-            background: #4040f9;
-        }
-
-        .nav_contextmenu li:hover a, .folder_contextmenu li:hover a, .file_contextmenu li:hover a {
-            color: #FFFFFF;
-        }
-    </style>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <!-- <script src="/assets/js/memo.js?_=<?php //echo time(); ?>"></script> -->
-</head>
-    <body>
-        <div class="wrap">
-            <div class="nav">
-                <div class="contextmenu_box">
-
-                </div>
-                <ul class="nav_contextmenu" name="contextmenu">
-                    <li><a href="#" class="add_folder">New Folder</a></li>
-                </ul>
-                <div class="nav_header">
-                    <span>FOLDERS</span>
-                </div>
-                <div class="nav_contents" id="nav_contents">
-                    <ul>
-                        <?php foreach ($folderList->main as $folder): ?>
-                            <li name="folder" id="folder-<?=$folder->seq?>" data-folder-seq="<?=$folder->seq?>">
-                                <span id="folder-close" class='close'>▶</span>
-                                <span class="folder_name"><?=$folder->name?></span>
-
-                                <ul name="file-ul">
-                                </ul>
-                            </li>
-                        <?php endforeach ?>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="main">
-                <div class="main_header">
-                </div>
-                <div class="main_contents">
-                    <textarea class="source" spellcheck="false"></textarea>
-                </div>
-            </div>
-        </div>
-    </body>
-</html>
-
-<script>
 $(document).ready(function(){
     let folder = $('[name="folder"]'),
         file = $('[name="file"]');
@@ -311,9 +190,8 @@ $(document).ready(function(){
             type : 'post',
             success : function(json) {
                 if (json.status) {
-                    let css = typeof folderSeq != 'undefined' ? 'padding-left: 5%;' : '';
                     let insertTag = `
-                        <ul name="folder-ul" style="${css}display: block;">
+                        <ul name="folder-ul" style="padding-left: 5%;display: block;">
                             <li name="folder" id="folder-${json.seq}" data-folder-seq="${json.seq}">
                                 <span id="folder-close" class='close'>▶</span>
                                 <span class="folder_name">${json.name}</span>
@@ -323,11 +201,7 @@ $(document).ready(function(){
                         </ul>
                     `;
 
-                    if (typeof folderSeq != 'undefined') {
-                        $(insertTag).insertAfter(`[name="folder"][data-folder-seq="${folderSeq}"] > span.folder_name`);
-                    } else {
-                        $('.nav_contents > ul').append(insertTag);
-                    }
+                    $(insertTag).insertAfter(`[name="folder"][data-folder-seq="${folderSeq}"] > span.folder_name`);
 
                     commonLoadFolder(json.seq);
                 } else {
@@ -569,4 +443,3 @@ $(document).ready(function(){
         });
     };
 });
-</script>
