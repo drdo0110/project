@@ -97,7 +97,6 @@
                             <li name="folder" id="folder-<?=$folder->seq?>" data-folder-seq="<?=$folder->seq?>">
                                 <span id="folder-close" class='close'>▶</span>
                                 <span class="folder_name"><?=$folder->name?></span>
-                                <span class="remove_folder">-</span>
 
                                 <ul name="file-ul">
                                 </ul>
@@ -132,14 +131,13 @@ $(document).ready(function(){
                 <li name="folder" id="folder-${el[0].folderSeq}" data-folder-seq="${el[0].folderSeq}">
                     <span id="folder-close" class='close'>▶</span>
                     <span class="folder_name">${el[0].folderName}</span>
-                    <span class="remove_folder">-</span>
                     <ul name="file-ul">
                     </ul>
                 </li>
             </ul>
         `;
 
-        $(insertTag).insertAfter(`[name="folder"][data-folder-seq="${el[0].folderParentId}"] > span.remove_folder`);
+        $(insertTag).insertAfter(`[name="folder"][data-folder-seq="${el[0].folderParentId}"] > span.folder_name`);
     });
 
     let existingFile = JSON.parse(<?=var_export($fileList)?>);
@@ -206,6 +204,7 @@ $(document).ready(function(){
                 tag += `<li><a href="#" class="add_folder">New Folder</a></li>`;
                 tag += `<li><a href="#" class="add_file">New File</a></li>`;
                 tag += `<li><a href="#" class="rename_folder">Folder Rename</a></li>`;
+                tag += `<li><a href="#" class="remove_folder">Folder Delete</a></li>`;
         }
         tag += `</ul>`;
 
@@ -312,14 +311,13 @@ $(document).ready(function(){
                             <li name="folder" id="folder-${json.seq}" data-folder-seq="${json.seq}">
                                 <span id="folder-close" class='close'>▶</span>
                                 <span class="folder_name">${json.name}</span>
-                                <span class="remove_folder">-</span>
                                 <ul name="file-ul">
                                 </ul>
                             </li>
                         </ul>
                     `;
 
-                    $(insertTag).insertAfter(`[name="folder"][data-folder-seq="${folderSeq}"] > span.remove_folder`);
+                    $(insertTag).insertAfter(`[name="folder"][data-folder-seq="${folderSeq}"] > span.folder_name`);
 
                     commonLoadFolder(json.seq);
                 } else {
@@ -327,6 +325,31 @@ $(document).ready(function(){
                 }
             }
         });
+    });
+
+    //폴더 삭제
+    $(document).on('click', '.remove_folder', function(e) {
+        let target = $(e.target),
+            seq = target.parents('ul').data('folder-seq');
+
+        if (confirm($(`[name="folder"][data-folder-seq="${seq}"] > span.folder_name`).text().trim() + ' 폴더을 삭제하시겠습니까?')) {
+            $.ajax({
+                url : 'memo/removeFolder',
+                data : {
+                    seq : seq,
+                },
+                dataType : 'text',
+                type : 'post',
+                success : function(result) {
+                    if (result) {
+                        $(`[name="folder"][data-folder-seq="${seq}"]`).remove();
+                        commonLoadFolder(leftSeq);
+                    } else {
+                        alert('삭제 오류');
+                    }
+                }
+            })
+        }
     });
 
     //파일 추가

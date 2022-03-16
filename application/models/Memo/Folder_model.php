@@ -63,4 +63,10 @@ class Folder_model extends CI_Model {
         $this->db->insert('folder', $data);
         return $this->db->insert_id();
     }
+
+    //폴더삭제
+    public function removeFolder($data) {
+        $this->db->delete('folder', $data);
+        return true;
+    }
 }
