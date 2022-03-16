@@ -28,7 +28,7 @@
         .nav_contents ul li {cursor: pointer;font-size: 13px;}
 
         [name="file"] {padding-left: 10%;}
-        [name="file-ul"] {display: none;}
+        [name="file-ul"], [name="folder-ul"] {display: none;}
 
         .main_header {height: 4%; background: #3c3c3c;}
         .main_contents{height: 96%;}
@@ -93,20 +93,13 @@
                 </div>
                 <div class="nav_contents" id="nav_contents">
                     <ul>
-                        <?php foreach ($folderList as $folder): ?>
+                        <?php foreach ($folderList->main as $folder): ?>
                             <li name="folder" id="folder-<?=$folder->seq?>" data-folder-seq="<?=$folder->seq?>">
                                 <span id="folder-close" class='close'>▶</span>
                                 <span class="folder_name"><?=$folder->name?></span>
                                 <span class="remove_folder">-</span>
 
                                 <ul name="file-ul">
-                                    <?php foreach ($fileList as $file): ?>
-                                        <?php if ($file->parent_id == $folder->seq): ?>
-                                            <li name="file" id="file-<?=$file->seq?>" data-file-seq="<?=$file->seq?>">
-                                                <span class="file_name"><?=$file->name?></span>
-                                            </li>
-                                        <?php endif; ?>
-                                    <?php endforeach ?>
                                 </ul>
                             </li>
                         <?php endforeach ?>
@@ -129,6 +122,38 @@
 $(document).ready(function(){
     let folder = $('[name="folder"]'),
         file = $('[name="file"]');
+
+    //db에 이미 저장되어있는 폴더 insertAfter
+    let existingFolder = JSON.parse(<?=var_export($folderList->sub)?>);
+    $.each(existingFolder, function(idx, el) {
+        var el = $(el);
+        var insertTag = `
+            <ul name="folder-ul" style="padding-left: 5%;">
+                <li name="folder" id="folder-${el[0].folderSeq}" data-folder-seq="${el[0].folderSeq}">
+                    <span id="folder-close" class='close'>▶</span>
+                    <span class="folder_name">${el[0].folderName}</span>
+                    <span class="remove_folder">-</span>
+                    <ul name="file-ul">
+                    </ul>
+                </li>
+            </ul>
+        `;
+
+        $(insertTag).insertAfter(`[name="folder"][data-folder-seq="${el[0].folderParentId}"] > span.remove_folder`);
+    });
+
+    let existingFile = JSON.parse(<?=var_export($fileList)?>);
+    $.each(existingFile, function(idx, el) {
+        var el = $(el);
+        var insertTag = `
+            <li name='file' id='file-${el[0].seq}' data-file-seq='${el[0].seq}'>
+                <span class='file_name'>${el[0].name}</span>
+            </li>
+        `;
+
+        $(`[name="folder"][data-folder-seq="${el[0].parent_id}"] > ul[name="file-ul"]`).append(insertTag);
+    });
+
 
     //폴더 contextmenu
     folder.on('contextmenu', function(e) {
@@ -178,7 +203,8 @@ $(document).ready(function(){
             let seq = target.parent().data('folder-seq');
 
             tag += `<ul class="folder_contextmenu" name="contextmenu" data-folder-seq="${seq}">`;
-                tag += `<li><a href="#" class="add_folder">New File</a></li>`;
+                tag += `<li><a href="#" class="add_folder">New Folder</a></li>`;
+                tag += `<li><a href="#" class="add_file">New File</a></li>`;
                 tag += `<li><a href="#" class="rename_folder">Folder Rename</a></li>`;
         }
         tag += `</ul>`;
@@ -244,7 +270,7 @@ $(document).ready(function(){
     });
 
     //폴더 열닫
-    folder.find('span:eq(0), span:eq(1)').on('click', function(e) {
+    $(document).on('click', 'span#folder-close, span.folder_name', function(e) {
         let target = $(e.target),
             status = target.parent().find(' > span#folder-close'),
             statusValue = status.attr('class');
@@ -252,16 +278,59 @@ $(document).ready(function(){
         if (statusValue == 'close') {
             status.text('▼');
             status.attr('class', 'open');
-            target.parent().find('ul').slideDown();
+            target.parent().find(' > ul').slideDown();
         } else {
             status.text('▶');
             status.attr('class', 'close');
-            target.parent().find('ul').slideUp();
+            target.parent().find(' > ul').slideUp();
         }
     });
 
-    //파일 추가
+    //폴더 추가
     $(document).on('click', '.add_folder', function(e) {
+        let target = $(e.target),
+            folderName = prompt('폴더명을 입력해주세요.'),
+            folderSeq = target.parents('ul').data('folder-seq');
+
+        if (folderName == '') {
+            alert('폴더명이 입력되지 않았습니다.\n다시 확인해주세요.');
+            return false;
+        }
+
+        $.ajax({
+            url : 'memo/addFolder',
+            data : {
+                parentId : folderSeq,
+                folderName : folderName,
+            },
+            dataType : 'json',
+            type : 'post',
+            success : function(json) {
+                if (json.status) {
+                    let insertTag = `
+                        <ul name="folder-ul" style="padding-left: 5%;">
+                            <li name="folder" id="folder-${json.seq}" data-folder-seq="${json.seq}">
+                                <span id="folder-close" class='close'>▶</span>
+                                <span class="folder_name">${json.name}</span>
+                                <span class="remove_folder">-</span>
+                                <ul name="file-ul">
+                                </ul>
+                            </li>
+                        </ul>
+                    `;
+
+                    $(insertTag).insertAfter(`[name="folder"][data-folder-seq="${folderSeq}"] > span.remove_folder`);
+
+                    commonLoadFolder(json.seq);
+                } else {
+                    alert(json.msg);
+                }
+            }
+        });
+    });
+
+    //파일 추가
+    $(document).on('click', '.add_file', function(e) {
         let target = $(e.target),
             fileName = prompt('파일명을 입력해주세요.'),
             folderSeq = target.parents('ul').data('folder-seq');
@@ -287,7 +356,7 @@ $(document).ready(function(){
                         </li>
                     `;
 
-                    $(`[name="folder"][data-folder-seq=${folderSeq}]`).append(insertTag);
+                    $(`[name="folder"][data-folder-seq=${folderSeq}] ul[name="file-ul"]`).append(insertTag);
 
                     commonLoadFile(json.seq, 'detail');
                 } else {
@@ -295,7 +364,6 @@ $(document).ready(function(){
                 }
             }
         });
-
     });
 
     //파일 삭제
@@ -439,6 +507,23 @@ $(document).ready(function(){
                         $(el).addClass('active');
                     }
                 });
+            }
+        });
+    };
+
+    //폴더 row 호출 - 공통
+    function commonLoadFolder(seq) {
+        $.ajax({
+            url : 'memo/loadFolderRow',
+            data : {
+                seq : seq,
+            },
+            dataType : 'json',
+            type : 'get',
+            success : function(json) {
+                let data = json;
+                $('.source').empty();
+                $('.source').text(data.source);
             }
         });
     };

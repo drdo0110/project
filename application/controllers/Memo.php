@@ -12,7 +12,7 @@ class Memo extends MY_Controller {
     }
 
     public function index() {
-        $data['fileList'] = $this->_loadFileList();
+        $data['fileList'] = json_encode($this->_loadFileList());
         $data['folderList'] = $this->_loadFolderList();
 
         echo $this->_content($data);
@@ -25,7 +25,10 @@ class Memo extends MY_Controller {
 
     //폴더 리스트 호출
     private function _loadFolderList() {
-        return $this->folder->getFolderList();
+        return (object) [
+            'main'  => $this->folder->getMainFolderList(),
+            'sub'   => json_encode($this->folder->getSubFolderList())
+        ];
     }
 
     //파일 row 호출
@@ -37,6 +40,15 @@ class Memo extends MY_Controller {
         return $this->file->getFileRow($seq);
     }
 
+    //폴더 row 호출
+    private function _loadCommonFolderRow($seq) {
+        if (empty($seq)) {
+            return false;
+        }
+
+        return $this->folder->getFolderRow($seq);
+    }
+
     //파일 선택시 호출
     public function loadFileRow() {
         $oGet = (object) $this->input->get(null, true);
@@ -44,6 +56,16 @@ class Memo extends MY_Controller {
         if ( ! empty($oGet->seq)) {
             $fileRow = $this->_loadCommonFileRow($oGet->seq);
             echo json_encode($fileRow);
+        }
+    }
+
+    //폴더 선택시 호출
+    public function loadFolderRow() {
+        $oGet = (object) $this->input->get(null, true);
+
+        if ( ! empty($oGet->seq)) {
+            $folderRow = $this->_loadCommonFolderRow($oGet->seq);
+            echo json_encode($folderRow);
         }
     }
 
@@ -138,6 +160,38 @@ class Memo extends MY_Controller {
         ];
 
         echo json_encode($result);
+    }
+
+    //폴더 생성
+    public function addFolder() {
+        $oPost = (object) $this->input->post(null, true);
+        $data = [
+            'parent_id' => $oPost->parentId,
+            'name'      => $oPost->folderName
+        ];
+
+        $uniqueFolder = $this->folder->getUniqueFolderRow($data);
+        if ( ! empty($uniquefolder)) {
+            $status = false;
+            $msg = "{$uniqueFolder->folderName} 폴더 아래에 이미 존재합니다.";
+
+            $result = [
+                'status'    => $status,
+                'msg'       => $msg
+            ];
+
+            echo json_encode($result);
+            return false;
+        }
+
+        $result_seq = $this->folder->setFolder($data);
+        if ( ! empty($result_seq)) {
+            //생성된 파일 바로 뿌려주기 위한 select
+            $folderRow = $this->_loadCommonFolderRow($result_seq);
+            $folderRow->status = true;
+
+            echo json_encode($folderRow);
+        }
     }
 
     //view
