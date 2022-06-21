@@ -85,8 +85,8 @@ defined('EXIT__AUTO_MIN')      OR define('EXIT__AUTO_MIN', 9); // lowest automat
 defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest automatically-assigned error code
 
 if ($_SERVER['SERVER_ADDR'] == '127.0.0.1') {
-    echo 'dev';
+    define('APP_PATH', '');
 } else if ($_SERVER['SERVER_ADDR'] == '172.31.43.153') {
-    echo 'pro';
+    define('APP_PATH', realpath(dirname(__FILE__).'/../..'));
 }
-define('APP_PATH', realpath(dirname(__FILE__).'/../..'));
+
