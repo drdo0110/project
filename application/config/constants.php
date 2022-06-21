@@ -88,6 +88,6 @@ if (ENVIRONMENT == 'development') {
     define('APP_PATH', '');
 } else if (ENVIRONMENT == 'production') {
     echo realpath(dirname(__FILE__));
-    define('APP_PATH', realpath(dirname(__FILE__)));
+    define('APP_PATH', realpath(dirname(__FILE__) . '/../..'));
 }
 
