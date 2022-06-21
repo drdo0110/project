@@ -62,7 +62,7 @@
  * By default development will show errors but testing and live will hide them.
  */
 
-if(realpath(dirname(__FILE__)) == '/home/nhjung/public_html') {
+if(realpath(dirname(__FILE__)) == '/home/nhjung/public_html/project') {
     define('ENVIRONMENT', 'production');
 } else {
     define('ENVIRONMENT', 'development');
