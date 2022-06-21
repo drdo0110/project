@@ -15,6 +15,7 @@ class Folder_model extends CI_Model {
             ')
             ->where('parent_id', 0)
             ->from('folder')
+            ->order_by('name ASC')
             ->get();
 
         return $selectQuery->result();
@@ -29,6 +30,7 @@ class Folder_model extends CI_Model {
             ')
             ->where('folder.parent_id !=', 0)
             ->from('folder')
+            ->order_by('name ASC')
             ->get();
 
         return $selectQuery->result();
