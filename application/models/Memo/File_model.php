@@ -14,6 +14,7 @@ class File_model extends CI_Model {
                 *
             ')
             ->from('file')
+            ->order_by('seq asc')
             ->get();
 
         return $selectQuery->result();
@@ -26,6 +27,7 @@ class File_model extends CI_Model {
             ')
             ->from('file')
             ->where('seq', $seq)
+            ->order_by('seq asc')
             ->get();
 
         return $selectQuery->row();
