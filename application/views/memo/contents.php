@@ -5,8 +5,8 @@
     <title></title>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="/assets/js/memo.js?v=<?=time()?>"></script>
-    <link rel="stylesheet" href="/assets/css/memo.css?v=<?=time()?>">
+    <script src="<?=APP_PATH?>/assets/js/memo.js?v=<?=time()?>"></script>
+    <link rel="stylesheet" href="<?=APP_PATH?>/assets/css/memo.css?v=<?=time()?>">
 </head>
     <body>
         <div class="wrap">
