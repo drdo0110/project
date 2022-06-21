@@ -4,7 +4,7 @@ $(document).ready(function(){
 
     //db에 이미 저장되어있는 폴더 insertAfter
     let existingFolder = folderListSub;
-    $.each(existingFolder, function(idx, el) {
+    $.each(existingFolder, (idx, el) => {
         var el = $(el);
         var insertTag = `
             <ul name="folder-ul" style="padding-left: 5%;">
@@ -21,7 +21,7 @@ $(document).ready(function(){
     });
 
     let existingFile = fileList;
-    $.each(existingFile, function(idx, el) {
+    $.each(existingFile, (idx, el) => {
         var el = $(el);
         var insertTag = `
             <li name='file' id='file-${el[0].seq}' data-file-seq='${el[0].seq}'>
@@ -37,7 +37,7 @@ $(document).ready(function(){
     commonContextMenu(folder);
 
     //nav contextmenu
-    $('.nav').on('contextmenu', function(e) {
+    $('.nav').on('contextmenu', (e) => {
         let winWidth = $(document).width();
         let winHeight = $(document).height();
 
@@ -80,12 +80,12 @@ $(document).ready(function(){
     });
 
     //contextmenu 숨기기
-    $(document).click(function(){
+    $(document).click(() => {
         $("[name='contextmenu']").hide();
     });
 
     //폴더 열닫
-    $(document).on('click', 'span#folder-close, span.folder_name', function(e) {
+    $(document).on('click', 'span#folder-close, span.folder_name', (e) => {
         let target = $(e.target),
             status = target.parent().find(' > span#folder-close'),
             statusValue = status.attr('class');
@@ -102,7 +102,7 @@ $(document).ready(function(){
     });
 
     //폴더 추가
-    $(document).on('click', '.add_folder', function(e) {
+    $(document).on('click', '.add_folder', (e) => {
         let target = $(e.target),
             folderName = prompt('폴더명을 입력해주세요.'),
             folderSeq = target.parents('ul').data('folder-seq');
@@ -124,7 +124,7 @@ $(document).ready(function(){
             },
             dataType : 'json',
             type : 'post',
-            success : function(json) {
+            success (json) {
                 if (json.status) {
                     if (typeof folderSeq != 'undefined') {
                         let insertTag = `
@@ -160,7 +160,7 @@ $(document).ready(function(){
     });
 
     //폴더 삭제
-    $(document).on('click', '.remove_folder', function(e) {
+    $(document).on('click', '.remove_folder', (e) => {
         let target = $(e.target),
             seq = target.parents('ul').data('folder-seq');
 
@@ -175,7 +175,7 @@ $(document).ready(function(){
                 },
                 dataType : 'text',
                 type : 'post',
-                success : function(result) {
+                success (result) {
                     if (result) {
                         $(`[name="folder"][data-folder-seq="${seq}"]`).remove();
                         commonLoadFolder(seq);
@@ -188,7 +188,7 @@ $(document).ready(function(){
     });
 
     //파일 추가
-    $(document).on('click', '.add_file', function(e) {
+    $(document).on('click', '.add_file', (e) => {
         let target = $(e.target),
             fileName = prompt('파일명을 입력해주세요.'),
             folderSeq = target.parents('ul').data('folder-seq');
@@ -210,7 +210,7 @@ $(document).ready(function(){
             },
             dataType : 'json',
             type : 'post',
-            success : function(json) {
+            success (json) {
                 if (json.status) {
                     let insertTag = `
                         <li name='file' id='file-${json.seq}' data-file-seq='${json.seq}'>
@@ -228,7 +228,7 @@ $(document).ready(function(){
     });
 
     //파일 삭제
-    $(document).on('click', '.remove_file', function(e) {
+    $(document).on('click', '.remove_file', (e) => {
         let target = $(e.target),
             seq = target.parents('ul').data('file-seq');
 
@@ -243,7 +243,7 @@ $(document).ready(function(){
                 },
                 dataType : 'text',
                 type : 'post',
-                success : function(result) {
+                success (result) {
                     if (result) {
                         $(`[name="file"][data-file-seq="${seq}"]`).remove();
 
@@ -260,14 +260,14 @@ $(document).ready(function(){
     });
 
     //파일 클릭
-    $(document).on('click', "[name='file']", function(e) {
+    $(document).on('click', "[name='file']", (e) => {
         let target = $(e.target),
             li = target.parent(),
             seq = target.parent().data('file-seq');
 
         //이미 동일한 파일이 열려있으면 return
         let isFileOpen = false;
-        $.each($('.main_header').find('.click_file_name'), function(idx, el) {
+        $.each($('.main_header').find('.click_file_name'), (idx, el) => {
             if (seq == $(el).data('file-seq')) {
                 isFileOpen = true;
             }
@@ -282,7 +282,7 @@ $(document).ready(function(){
     });
 
     //파일 닫기
-    $(document).on('click', '.cancel', function(e) {
+    $(document).on('click', '.cancel', (e) => {
         let target = $(e.target);
         target.parent().remove();
 
@@ -295,7 +295,7 @@ $(document).ready(function(){
     });
 
     //폴더 및 파일 이름 변경
-    $(document).on('click', '.rename_folder, .rename_file', function(e) {
+    $(document).on('click', '.rename_folder, .rename_file', (e) => {
         let target = $(e.target),
             type = target.attr('class') == 'rename_folder' ? 'folder' : 'file',
             krType = type == 'folder' ? '폴더' : '파일',
@@ -322,7 +322,7 @@ $(document).ready(function(){
             },
             dataType : 'json',
             type : 'get',
-            success : function(json) {
+            success (json) {
                 alert(json.msg);
                 if (json.status) {
                     //업데이트 이후
@@ -335,7 +335,7 @@ $(document).ready(function(){
     });
 
     //열린 파일 리스트중의 특정 파일 선택시
-    $(document).on('click', '.click_file_name', function(e) {
+    $(document).on('click', '.click_file_name', (e) => {
         let target = $(e.target);
         commonLoadFile(target.data('file-seq'));
     });
@@ -349,7 +349,7 @@ $(document).ready(function(){
             },
             dataType : 'json',
             type : 'get',
-            success : function(json) {
+            success (json) {
                 let data = json;
                 $('.source').empty();
                 $('.source').text(data.source);
@@ -370,7 +370,7 @@ $(document).ready(function(){
 
                 //선택된 파일 active
                 $('.click_file_name').removeClass('active');
-                $.each($('.click_file_name'), function(idx, el) {
+                $.each($('.click_file_name'), (idx, el) => {
                     if (seq == $(el).data('file-seq')) {
                         $(el).addClass('active');
                     }
@@ -388,7 +388,7 @@ $(document).ready(function(){
             },
             dataType : 'json',
             type : 'get',
-            success : function(json) {
+            success (json) {
                 let data = json;
                 $('.source').empty();
             }
@@ -397,7 +397,7 @@ $(document).ready(function(){
 
     function commonContextMenu(dom) {
         //폴더 contextmenu
-        dom.on('contextmenu', function(e) {
+        dom.on('contextmenu', (e) => {
             let target = $(e.target);
 
             let winWidth = $(document).width();
