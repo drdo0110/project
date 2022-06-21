@@ -87,6 +87,6 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
 if ($_SERVER['SERVER_ADDR'] == '127.0.0.1') {
     define('APP_PATH', '');
 } else if ($_SERVER['SERVER_ADDR'] == '172.31.43.153') {
-    define('APP_PATH', realpath(dirname(__FILE__).'/../..'));
+    define('APP_PATH', realpath(dirname(__FILE__)));
 }
 
