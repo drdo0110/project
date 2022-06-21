@@ -84,9 +84,9 @@ defined('EXIT_DATABASE')       OR define('EXIT_DATABASE', 8); // database error
 defined('EXIT__AUTO_MIN')      OR define('EXIT__AUTO_MIN', 9); // lowest automatically-assigned error code
 defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest automatically-assigned error code
 
-if (ENVIRONMENT == 'development') {
+if ($_SERVER['SERVER_ADDR'] == '127.0.0.1') {
     echo 'dev';
-} else if (ENVIRONMENT == 'production') {
+} else if ($_SERVER['SERVER_ADDR'] == '172.31.43.153') {
     echo 'pro';
 }
 define('APP_PATH', realpath(dirname(__FILE__).'/../..'));
