@@ -87,6 +87,6 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
 if (ENVIRONMENT == 'development') {
     define('APP_PATH', '');
 } else if (ENVIRONMENT == 'production') {
-    define('APP_PATH', '');
+    define('APP_PATH', '/project');
 }
 
