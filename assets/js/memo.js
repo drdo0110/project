@@ -164,6 +164,9 @@ $(document).ready(function(){
         let target = $(e.target),
             seq = target.parents('ul').data('folder-seq');
 
+        alert('관리자만 삭제가 가능합니다.');
+        return;
+
         if (confirm($(`[name="folder"][data-folder-seq="${seq}"] > span.folder_name`).text().trim() + ' 폴더을 삭제하시겠습니까?')) {
             $.ajax({
                 url : 'memo/removeFolder',
@@ -228,6 +231,9 @@ $(document).ready(function(){
     $(document).on('click', '.remove_file', function(e) {
         let target = $(e.target),
             seq = target.parents('ul').data('file-seq');
+
+        alert('관리자만 삭제가 가능합니다.');
+        return;
 
         if (confirm($(`[name="file"][data-file-seq="${seq}"]`).text().trim() + ' 파일을 삭제하시겠습니까?')) {
             $.ajax({
