@@ -14,7 +14,8 @@ class Memo extends MY_Controller {
 
     public function index() {
         $userJoinData = [
-            'link'  => ''
+            'ip'    => $_SERVER["REMOTE_ADDR"],
+            'agent' => $_SERVER["HTTP_USER_AGENT"],
         ];
         $this->userJoin->setUserJoin($userJoinData);
 
