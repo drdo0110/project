@@ -9,9 +9,15 @@ class Memo extends MY_Controller {
         parent::__construct();
         $this->load->model('Memo/Folder_model', 'folder');
         $this->load->model('Memo/File_model', 'file');
+        $this->load->model('User_join_model', 'userJoin');
     }
 
     public function index() {
+        $userJoinData = [
+            'link'  => ''
+        ];
+        $this->userJoin->setUserJoin($userJoinData);
+
         $data['fileList'] = json_encode($this->_loadFileList());
         $data['folderList'] = $this->_loadFolderList();
 
